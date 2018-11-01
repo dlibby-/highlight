@@ -45,6 +45,8 @@ Is the overlap something we can implement? Is there a better way to perform the 
 
 It is a bit unfortunate that we will have a Range-based object that has a CSSStyleDeclaration property hanging off of it. It feels a bit like a layering violation. I had hope that we could instead have HighlightsMap take a dictionary with vanilla Range and something like StylePropertyMap from (CSS Typed OM Level 1 spec)[https://www.w3.org/TR/css-typed-om-1/#the-stylepropertymap], but just like CSSStyleDeclaration, those are not constructable. Another option is to have a method that takes a dictionary of property (string) value (also string) pairs and hid the implementation details of having a CSSStyleDeclaration under the hood.
 
+Ergonomics of removing a single highlight don't seem ideal, but may be acceptable - you can highlights.set(groupname, ...highlights.getAll(groupname).filter(highlight => highlight !== toBeRemoved))
+
 ## Webidl
 
 ```webidl
@@ -61,7 +63,7 @@ interface HighlightsMap {
     void set(USVString name, HighlightRange... highlights);
     void append(USVString name, HighlightRange... highlights);
     void delete(USVString name);
-    void Clear();
+    void clear();
 
     iterable<USVString, sequence<HighlightRange>>;
 };
