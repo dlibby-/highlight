@@ -12,7 +12,7 @@ The ```::highlight(ident)``` CSS pseudo-element function will take a CSS identif
 **HighlightRange** objects allow for inline-like styles to apply in addition to the cascaded styles, providing both declarative and programmatic interfaces for performing highlight styling. The combination of the styles will be applied to the various runs of text contents of the Range.
 
 ```css
-::highlight(example-highlight) {
+:root::highlight(example-highlight) {
     background-color: yellow;
     color:blue;
 }
@@ -25,7 +25,7 @@ function highlightText(startNode, startOffset, endNode, endOffset) {
     highlightRange.setEnd(endNode, endOffset);
     highlightRange.style.color = "black";
 
-    document.defaultView.highlights.append("example-highlight", highlightRange);
+    window.highlights.append("example-highlight", highlightRange);
 }
 ```
 
@@ -43,18 +43,18 @@ Following the code example above, if we have the following snippet of HTML:
 
 Where 'text' is covered by the ```highlightRange``` (as denoted by the ```|``` characters), there will be two inline boxes created, one for 'Some ' and one for 'text'. The 'text' inline box will first lookup the 'example-highlight' grouping, and apply ```background-color:yellow``` and ```color:blue```, based on the map that was cascaded onto the ```<p>``` element. Subsequently, ```color:black``` will be applied based on the style of the HighlightRange itself.
 
-HighlightRanges added to the map can overlap --- in these cases, the properties are computed by ordered by applying the styles of the applicable Ranges in ascending priority order, where the last write of a given property wins. In the event that Ranges overlap and have the same priority, the timestamp of when the HighlightRange was added to the map is used.
+HighlightRanges added to the map can overlap --- in these cases, the properties are computed by applying the styles of the applicable Ranges in ascending priority order, where the last write of a given property wins. In the event that Ranges overlap and have the same priority, the timestamp of when the HighlightRange was added to the map is used.
 
-It is also possible to add entries in the HighlightsMap, without there being a corresponding ::highlight() pseudo element for the associated document. In this case an implicit ::highlight() pseudo will be created and applied to the inline boxes that are covered by the Range objects in the map.
+It is also possible to add entries in the HighlightsMap, without there being a corresponding ::highlight() pseudo element for the associated document. In this case an there are no cascaded properties to apply when creating inline boxes --- only the inline properties directly set on the HighlightRange objects will apply (and if there are none, there will be no impact on inline boxes).
 
 In terms of painting, the ::highlight pseudo is treated as a highlight pseudo-element, as described in [CSS Pseudo Elements Level 4](https://drafts.csswg.org/css-pseudo-4/#highlight-pseudos). Only a specific subset of style properties will apply and are limited to those that affect text.
 
 ## Invalidation
-HighlightRanges are live ranges - DOM changes within one of the HighlightRange objects will result in the new contents being highlighted. Changes to the boundary points of HighlightRanges in the  HightlightsMap will result in the user-agent invalidating the view and repainting the changed highlights appropriately. If there are DOM/CSS changes that result in a different cascaded highlight map for a given element, and there exists one or more Range objects in the highlights map for the cascaded group names, the layout representation of that element should be notified that the painting of the element might have changed. 
+HighlightRanges are live ranges - DOM changes within one of the HighlightRange objects will result in the new contents being highlighted. Changes to the boundary points of HighlightRanges in the  HightlightsMap will result in the user-agent invalidating the view and repainting the changed highlights appropriately. If there are DOM/CSS changes that result in a different cascaded highlight map for a given element, and there exists one or more Range objects in the highlights map for the cascaded group names, the layout representation of that element should be notified that the painting of the element might have changed. HighlightRanges that are positioned inside of documents that are not in the view are ignored.
 
 ## Removal of highlights
 
-Because HighlightRange objects are live ranges, they must be modified when web developers wish their contents to no longer be highlighted. This can be achieved by removing the HighlightRange from the map, via ```remove()``` (note that ```remove()``` is overloaded so that passing a string will remove an entire group), or by moving the Range itself to a document that is not in the view (HighlightRanges that are not in the view are ignored).
+Because HighlightRange objects are live ranges, they must be modified when web developers wish their contents to no longer be highlighted. This can be achieved by removing the HighlightRange from the map, via ```remove()``` (note that ```remove()``` is overloaded so that passing a string will remove an entire group).
 
 ## Open questions
 
