@@ -58,6 +58,8 @@ It is also possible to add entries in the HighlightsMap, without there being a c
 
 In terms of painting, the ::highlight pseudo is treated as a highlight pseudo-element, as described in [CSS Pseudo Elements Level 4](https://drafts.csswg.org/css-pseudo-4/#highlight-pseudos). Only a specific subset of style properties will apply and are limited to those that affect text.
 
+## Example with overlapping Ranges
+
 Take the following html snippet:
 ```html
 <style>
