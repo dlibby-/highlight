@@ -83,7 +83,11 @@ Where (1) shows that ```range1``` covers ```"Some t"``` and (2) denotes ```range
 
 Because there are no priorities set (i.e. there is a tie between ```range1``` and ```range2```, the ranges' styles are applied in timestamp order. The rendered results will have ```"Som"``` with blue text on yellow background, ```"e t"``` with blue text on orange background, and ```"ext"``` with the default color on orange background.
 
+[overlap example1](overlap_example1.png)
+
 Setting ```range1.priority = 1;``` would cause ```range1``` to apply on top of ```range2```, which results in ```"Some t"``` being blue on yellow, and ```"ext"``` being default color on orange.
+
+[overlap example2](overlap_example2.png)
 
 ## Invalidation
 
