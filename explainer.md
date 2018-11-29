@@ -103,30 +103,3 @@ How should inline 'inherit' values be treated? The cascaded values are resolved 
 
 Can a Range participate in multiple groups? If so how do we order the cascaded properties for each group?
 
-## Webidl
-
-```webidl
-partial interface Range {
-    [SameObject, PutForwards=cssText] readonly attribute CSSStyleDeclaration style;
-    attribute unsigned long priority;
-};
-
-interface HighlightsMap {
-    Range? get(USVString name);
-    sequence<Range> getAll(USVString name);
-    boolean has(USVString name);
-
-    void set(USVString name, Range... highlights);
-    void append(USVString name, Range... highlights);
-    void insert(USVString name, unsigned long index, Range... highlights);
-    void delete(USVString name);
-    void delete(Range range);
-    void clear();
-
-    iterable<USVString, sequence<Range>>;
-};
-
-partial namespace CSS {
-    readonly attribute HighlightsMap highlights;
-};
-```
