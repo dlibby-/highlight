@@ -99,13 +99,13 @@ Because Range objects are live ranges, they must be modified when web developers
 
 ## Open questions
 
-Consider refactoring the naming (RangeDecorationMap and ::range-decoration(foo)?) if consensus says that 'highlight' is too specific.
+* Consider refactoring the naming (RangeDecorationMap and ::range-decoration(foo)?) if consensus says that 'highlight' is too specific.
 
-Should the .style property be added to AbstractRange and have styling apply to StaticRanges as well? What are the implications of this?
+* Should the .style property be added to AbstractRange and have styling apply to StaticRanges as well? What are the implications of this?
 
-Should we allow empty Ranges to be rendered like a caret, or are they not rendered at all?
+* Should we allow empty Ranges to be rendered like a caret, or are they not rendered at all?
 
-How should inline 'inherit' values be treated? The cascaded values are resolved per usual, but a range can span multiple elements which could all have different 'computed' values for 'inherit'. 
+* How should inline 'inherit' values be treated? The cascaded values are resolved per usual, but a range can span multiple elements which could all have different 'computed' values for 'inherit'. 
 
-Can a Range participate in multiple groups? If so how do we order the cascaded properties for each group?
+* Can a Range participate in multiple groups? If so how do we order the cascaded properties for each group?
 
