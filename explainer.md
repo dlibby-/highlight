@@ -4,32 +4,47 @@
 
 The Highlight API extends the concept of [CSS Highlight Pseudo-elements](https://drafts.csswg.org/css-pseudo-4/#highlight-pseudos) by providing a way for web developers to style the text of arbitrary Range objects, rather than being limited to the user-agent defined ```::selection```, ```::inactive-selection```, ```::spelling-error```, and ```::grammar-error```. This is useful in a variety of scenarios, including editing frameworks that wish to implement their own selection, find-on-page over virtualized documents, multiple selection to represent online collaboration, and spellchecking frameworks.
 
-Current browsers do not provide this functionality which forces web developers and framework authors to modify the underlying structure of the DOM tree in order to achieve the rendering they desire. This can quickly become complicated in cases where the desired highlight/selection spans elements across multiple subtrees, and requires DOM updates to the view in order to adjust highlights as they change. The Highlight API aims to provide a programmatic way of adding and removing highlights that do not affect the underlying DOM structure, but instead apply styles based on Range objects.
+Current browsers do not provide this functionality which forces web developers and framework authors to modify the underlying structure of the DOM tree in order to achieve the rendering they desire. This can quickly become complicated in cases where the desired highlight/selection spans elements across multiple subtrees, and requires DOM updates to the view in order to adjust highlights as they change. The Highlight API provides a programmatic way of adding and removing highlights that do not affect the underlying DOM structure, but instead applies styles based on Range objects.
 
 ## Example usage
-A **HighlightsMap** lives off of the CSS namespace and maps from a group name to a sequence of Range objects.
-The ```::highlight(ident)``` CSS pseudo-element function will take a CSS identifier that will be matched against the group name from the **HighlightsMap** of the associated document. The style properties contained within the rule describes a cascaded highlight style for Ranges that were inserted into the highlights map under a group name equal to the identifier.
-The Range interface is extended to have a style property, that allows for inline-like styles to apply in addition to the cascaded styles, providing both declarative and programmatic interfaces for performing highlight styling. The combination of the styles will be applied to the various runs of text contents of the Range.
 
-```css
+The following code uses the ```::highlight``` pseudo-element to apply a yellow background and blue foreground color to the text ```One two```. It does so by adding a Range into the HighlightsMap (a new concept introduced by this proposal).
+
+```html
+<style>
 :root::highlight(example-highlight) {
     background-color: yellow;
     color:blue;
 }
-```
-
-```javascript
-function highlightText(startNode, startOffset, endNode, endOffset) {
+</style>
+<body><span>One </span><span>two </span><span>three...</span>
+<script>
     let highlightRange = new Range();
-    highlightRange.setStart(startNode, startOffset);
-    highlightRange.setEnd(endNode, endOffset);
-    highlightRange.style.color = "black";
+    highlightRange.setStart(document.body, 0);
+    highlightRange.setEnd(document.body, 2);
 
     CSS.highlights.append("example-highlight", highlightRange);
-}
+</script>
 ```
 
-The **HighlightsMap** is a maplike object with a few affordances for mapping a group name to an ordered sequence of Range objects, including a variadic ```set()```,  an ```append()``` method, and an ```insert()``` method;
+The next example achieves the same result by using the style property on the Range object. Adding a CSSStyleDeclaration named style is a new concept introduced by this proposal. The style property allows for programmatic manipulation of the style separate from the declarative model of the ::highlight pseudo-element.
+
+```html
+<body><span>One </span><span>two </span><span>three...</span>
+<script>
+    let highlightRange = new Range();
+    highlightRange.setStart(document.body, 0);
+    highlightRange.setEnd(document.body, 2);
+    highlightRange.style.backgroundColor = "yellow";
+    highlightRange.style.color = "blue";
+
+    CSS.highlights.append("inline-highlight", highlightRange);
+</script>
+```
+
+When both  applied ... example
+
+CSS.highlights is a **HighlightsMap**. The **HighlightsMap** is a maplike object with a few affordances for mapping a name to an ordered sequence of Range objects, including a variadic ```set()```,  an ```append()``` method, and an ```insert()``` method. The order is important because multiple ranges can apply over the same content and order disambiguates which styles should applied as explained in the Application of CSS properties section.
 
 ```javascript
 CSS.highlights.set("foo", range2, range3);
@@ -42,7 +57,11 @@ console.log(CSS.highlights.get("foo")); // Logs [range1, range2, range3, range4]
 
 The HighlightsMap is structured as a map so that there is a logical grouping of highlights. This allows web developers and frameworks to have highlights grouped in such a way that they are more easily composed (e.g. one framework can do spellcheck highlighting, while another can manage find-on-page, with yet another performing highlighting for selection).
 
-The grouping of highlights participates in the CSS cascade. The ::highlight pseudo will collect/cascade style properties into a map on matching elements, indexed by the group name. Any Range that exists in the highlight map under that group name will be styled based on the computed map of the element corresponding to the portions of the range. Additionally, the Range object's 'inline' style (i.e. properties set directly on the .style member) will be applied on top of the cascaded values for the group. The values of the Range objects' style are not stored as part of the cascade, but instead are used when determining which properties to apply to a given inline box.
+The ::highlight pseudo-element participates in the CSS cascade such that a computed style will be created on the [originating element](https://drafts.csswg.org/selectors-4/#originating-element) for each matching highlight identifier. This mapping of identifiers to computed styles will be held by a ComputedHighlightMap. The computed styles in the map are limited to the properties specified in [CSS Pseudo Elements Level 4](https://drafts.csswg.org/css-pseudo-4/#highlight-styling).
+
+At render time, inline level boxes covered by a Range in the HighlightMap will have their styles overridden. The overriding style come
+
+extends the concept of computed style such that it includes a mapping from highlight name . group name will be styled based on the computed map of the element corresponding to the portions of the range. Additionally, the Range object's 'inline' style (i.e. properties set directly on the .style member) will be applied on top of the cascaded values for the group. The values of the Range objects' style are not stored as part of the cascade, but instead are used when determining which properties to apply to a given inline box.
 
 Following the code example above, if we have the following snippet of HTML:
 
