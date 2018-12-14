@@ -8,7 +8,7 @@ Current browsers do not provide this functionality which forces web developers a
 
 ## Example usage
 
-The following code uses the ```::highlight``` pseudo-element to apply a yellow background and blue foreground color to the text ```One two```. It does so by adding a Range into the HighlightsMap (a new concept introduced by this proposal).
+The following code uses the ```::highlight``` pseudo-element to apply a yellow background and blue foreground color to the text ```One two```. It does so by adding a Range into the **HighlightsMap** (a new concept introduced by this proposal).
 
 ```html
 <style>
@@ -42,7 +42,6 @@ The next example achieves the same result by using the style property on the Ran
 </script>
 ```
 
-When both  applied ... example
 
 CSS.highlights is a **HighlightsMap**. The **HighlightsMap** is a maplike object with a few affordances for mapping a name to an ordered sequence of Range objects, including a variadic ```set()```,  an ```append()``` method, and an ```insert()``` method. The order is important because multiple ranges can apply over the same content and order disambiguates which styles should applied as explained in the Application of CSS properties section.
 
@@ -57,7 +56,7 @@ console.log(CSS.highlights.get("foo")); // Logs [range1, range2, range3, range4]
 
 The HighlightsMap is structured as a map so that there is a logical grouping of highlights. This allows web developers and frameworks to have highlights grouped in such a way that they are more easily composed (e.g. one framework can do spellcheck highlighting, while another can manage find-on-page, with yet another performing highlighting for selection).
 
-The grouping of highlights participates in the CSS cascade. The ::highlight pseudo will collect/cascade style properties into a map on matching elements, indexed by the group name. Any Range that exists in the highlight map under that group name will be styled based on the computed map of the element corresponding to the portions of the range. Additionally, the Range object's 'inline' style (i.e. properties set directly on the .style member) will be applied on top of the cascaded values for the group. The values of the Range objects' style are not stored as part of the cascade, but instead are used when determining which properties to apply to a given inline box.
+The grouping of highlights participates in the CSS cascade. The ::highlight pseudo will collect/cascade style properties into a map referenced by the matching [originating element](https://drafts.csswg.org/selectors-4/#originating-element), indexed by the identifier name. Any Range that exists in the highlight map under that identifier will be styled based on the computed maps of the originating elements that are covered by the Range (which can be a single element). Additionally, the Range object's 'inline' style (i.e. properties set directly on the .style member) will be applied on top of the cascaded values for the group. The values of the Range objects' style are not stored as part of the cascade, but instead are used when determining which properties to paint to portion of an inline box.
 
 In terms of painting, the ::highlight pseudo is treated as a highlight pseudo-element, as described in [CSS Pseudo Elements Level 4](https://drafts.csswg.org/css-pseudo-4/#highlight-pseudos). Only a specific subset of style properties will apply and are limited to those that affect text.
 
@@ -67,9 +66,9 @@ Following the code example above, if we have the following snippet of HTML:
 <p>Some |text|</p>
 ```
 
-where 'text' is covered by a Range (as denoted by the ```|``` characters) in the HighlightsMap under the 'example-highlight' identifier. In this case, when the inline box is painted, the inline box containing ```Some text``` will detect that there is a Range that spans part of the box. It will paint 'Some ' as it normally would, but when painting ```text``` the associated Range will be looked up in order to determine what styles to use. For this example the Range belongs to the 'example-highlight' identifier, which applies ```background-color:yellow``` and ```color:blue```, based on the map that was cascaded onto the ```<p>``` element. Subsequently, ```color:black``` will be applied based on the style of the Range itself.
+where 'text' is covered by a Range (as denoted by the ```|``` characters) in the HighlightsMap under the 'example-highlight' identifier. In this case, during painting, the inline box containing ```Some text``` will detect that there is a Range that spans part of the box. Due to this, when painting ```text``` the associated Range and its association in the HighlightsMap will be referenced in order to determine what styles to use. For this example the Range belongs to the 'example-highlight' identifier, which applies ```background-color:yellow``` and ```color:blue```, based on the map that was cascaded onto the ```<p>``` element. If the Range had an inline style of ```color:black```, this will be applied and overwrite the cascaded blue color for 'example-highlight'. The text 'Some ' will be painted as it normally would.
 
-There can be multiple such ranges for a given inline box and Ranges added to the map can overlap &mdash; in these cases, first the associated text will be split into a set of offsets, such that each member of the set has a unique number of ranges covering it. The style properties are then computed for each member in the set by applying the styles of the applicable Ranges in ascending priority order (based on the ```priority``` property on Range), where the last write of a given property wins. In the event that Ranges overlap and have the same priority, the timestamp of when the Range was added to the map is used.
+There can be multiple such ranges for a given inline box and Ranges added to the map can overlap &mdash; in these cases, the associated text will be split into a set of offsets, such that each member of the set has a unique collection of ranges covering it. The style properties are then computed for each member in the set by applying the styles of the applicable Ranges in ascending priority order (based on the ```priority``` property on Range), where the last write of a given property wins. In the event that Ranges overlap and have the same priority, the timestamp of when the Range was added to the map is used.
 
 It is also possible to add entries in the HighlightsMap, without there being a corresponding ::highlight() pseudo element for the associated document. In this case an there are no cascaded properties to apply when painting inline boxes &mdash; only the inline properties directly set on the Range objects will apply (and if there are none, there will be no impact on painting).
 
@@ -114,7 +113,7 @@ Because Range objects are live ranges, they must be modified when web developers
 
 ## Open questions
 
-Consider refactoring the naming (RangeDecorationMap and ::range-decoration(foo)?) if consensus says that 'highlight' is too specific.
+Consider refactoring the naming (RangeDecorationMap and ::range-decoration(foo)?) if consensus determines that 'highlight' is too specific.
 
 Should the .style property be added to AbstractRange and have styling apply to StaticRanges as well? What are the implications of this?
 
