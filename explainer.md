@@ -85,17 +85,19 @@ p::highlight(bar) {
 <p>|Som|e t|ext|</p>
    1   2   1   2
 <script>
-CSS.highlights.set("foo", range1);
-CSS.highlights.set("bar", range2);
+let range_group1 = new HighlightsRangeGroup(range1);
+let range_group2 = new HighlightsRangeGroup(range2);
+CSS.highlights.set("foo", range_group1);
+CSS.highlights.set("bar", range_group2);
 </script>
 ```
 Where (1) shows that ```range1``` covers ```"Some t"``` and (2) denotes ```range2``` covers ```"e text"```.
 
-Because there are no priorities set (i.e. there is a tie between ```range1``` and ```range2```, the ranges' styles are applied in timestamp order. The rendered results will have ```"Som"``` with blue text on yellow background, ```"e t"``` with blue text on orange background, and ```"ext"``` with the default color on orange background.
+Because there are no priorities set (i.e. there is a tie between ```range_group1``` and ```range_group2```, the HighlightsRangeGroups' styles are applied in timestamp order. The rendered results will have ```"Som"``` with blue text on yellow background, ```"e t"``` with blue text on orange background, and ```"ext"``` with the default color on orange background.
 
 ![overlap example1](overlap_example1.png)
 
-Setting ```range1.priority = 1;``` would cause ```range1``` to apply on top of ```range2```, which results in ```"Some t"``` being blue on yellow, and ```"ext"``` being default color on orange.
+Setting ```range_group1.priority = 1;``` would cause ```range_group1``` to apply on top of ```range_group1```, which results in ```"Some t"``` being blue on yellow, and ```"ext"``` being default color on orange.
 
 ![overlap example2](overlap_example2.png)
 
@@ -103,16 +105,14 @@ Setting ```range1.priority = 1;``` would cause ```range1``` to apply on top of `
 
 Ranges are live ranges - DOM changes within one of the Range objects will result in the new contents being highlighted. Changes to the boundary points of Ranges in the HighlightsMap will result in the user-agent invalidating the view and repainting the changed highlights appropriately. If there are DOM/CSS changes that result in a different cascaded highlight map for a given element, and there exists one or more Range objects in the highlights map for the cascaded identifiers, the layout representation of that element should be notified that the painting of the element might have changed. Ranges that are positioned inside of documents that are not in the view are ignored. The HighlightsMap is per-document &mdash; therefore, Ranges that are positioned inside of a different document than the HighlightsMap it is a part of are ignored for rendering.
 
+## Removal of highlights
+
+Because Range objects are live ranges, they must be modified when web developers wish their contents to no longer be highlighted. This can be achieved by removing the Range from the corresponding HighlightsRangeGroup, by passing it to the ```delete()``` method.
 
 ## Open questions
 
 Consider refactoring the naming (```RangeDecorationMap``` and ```::range-decoration(foo)```?) if consensus determines that 'highlight' is too specific.
 
-Should the .style property be added to AbstractRange and have styling apply to StaticRanges as well? What are the implications of this?
-
 Should we allow empty Ranges to be rendered like a caret, or are they not rendered at all?
 
-How should inline 'inherit' values be treated? The cascaded values are resolved per usual, but a range can span multiple elements which could all have different 'computed' values for 'inherit'. 
-
-Can a Range participate in multiple groups? If so how do we order the cascaded properties for each group?
-
+How should inline 'inherit' values be treated? The cascaded values are resolved per usual, but a range can span multiple elements which could all have different 'computed' values for 'inherit'.
