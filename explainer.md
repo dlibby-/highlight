@@ -46,7 +46,7 @@ The next example achieves the same result by using the style property on the Hig
 </script>
 ```
 
-CSS.highlights is a **HighlightsMap**. The **HighlightsMap** is a maplike object with a few affordances for mapping a name to a HighlightsRangeGroup object. The latter has a setlike interface to store Range objects, a style property which is a CSSStyleDeclaration, and a priority attribute. Priority is used to disambiguate which styles should be used in case more than one HighlightsRangeGroup in **HighlightsMap** apply over the same content.
+CSS.highlights is a **HighlightsMap**. The **HighlightsMap** is a [maplike](https://heycam.github.io/webidl/#idl-maplike) object that maps a name to a HighlightsRangeGroup object. The presence of a HighlightsRangeGroup in the highlight map enables the contained Ranges to be styled – a HighlightsRangeGroup not added to the HighlightsMap will have no effect on rendering. HighlightsRangeGroup represents a set of Ranges and exposes a [setlike](https://heycam.github.io/webidl/#idl-setlike) interface. The text content of the contained Ranges will be styled according to the HighlightRangeGroup’s `style` property (which is a CSSStyleDeclaration). HighlightsRangeGroups can also have styles applied by the ::highlight pseudo elements, when the identifier passed to the ::highlight pseudo is the same as the name of the HighlightsRangeGroup in the HighlightsMap. The HighlightRangeGroup also has a `priority` property – this is used to disambiguate which styles should be used when text content is covered by Ranges from different HighlightsRangeGroups.
 
 ## Application of CSS properties
 
